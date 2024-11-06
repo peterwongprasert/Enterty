@@ -10,6 +10,26 @@ import CoreData
 struct PersistenceController {
     static let shared = PersistenceController()
 
+    
+    func printDatabaseContents() {
+            let context = container.viewContext
+            
+            // Print Users
+            let usersFetch = NSFetchRequest<User>(entityName: "User")
+            do {
+                let users = try context.fetch(usersFetch)
+                print("\n=== Database Contents ===")
+                print("Total Users:", users.count)
+                for user in users {
+                    print("User Email:", user.email ?? "nil")
+                }
+            } catch {
+                print("Error fetching users:", error)
+            }
+        }
+    
+    
+    
     @MainActor
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)

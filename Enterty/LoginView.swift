@@ -8,8 +8,10 @@ struct LoginView: View {
     @State private var isShowingPasswordRecovery = false
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @State private var isShowingTitleTypeSelection = false  // Add this
+    @State private var isShowingDashboard = false  // Add this
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -18,17 +20,17 @@ struct LoginView: View {
                     Image(systemName: "play.square.stack")
                         .font(.system(size: 60))
                         .foregroundColor(.accentColor)
-
+                    
                     Text("Enterty")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-
+                    
                     Text("Track Your Entertainment")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
                 .padding(.top, 50)
-
+                
                 // Login Form
                 VStack(spacing: 15) {
                     TextField("Email", text: $email)
@@ -36,11 +38,11 @@ struct LoginView: View {
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
                         .keyboardType(.emailAddress)
-
+                    
                     SecureField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .textContentType(.password)
-
+                    
                     Button(action: handleLogin) {
                         Text("Log In")
                             .fontWeight(.semibold)
@@ -52,20 +54,20 @@ struct LoginView: View {
                     }
                 }
                 .padding(.horizontal, 30)
-
+                
                 // Sign Up and Password Recovery
                 VStack(spacing: 15) {
                     Button("Create Account") {
                         isShowingSignUp = true
                     }
                     .foregroundColor(.accentColor)
-
+                    
                     Button("Forgot Password?") {
                         isShowingPasswordRecovery = true
                     }
                     .foregroundColor(.secondary)
                 }
-
+                
                 Spacer()
             }
             .sheet(isPresented: $isShowingSignUp) {
@@ -74,6 +76,12 @@ struct LoginView: View {
             .sheet(isPresented: $isShowingPasswordRecovery) {
                 PasswordRecoveryView()
             }
+            .sheet(isPresented: $isShowingTitleTypeSelection) {
+                TitleTypeSelectionView()
+            }
+            .fullScreenCover(isPresented: $isShowingDashboard) {
+                DashboardView(userEmail: email)
+            }
             .alert("Login Error", isPresented: $showingAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -81,7 +89,7 @@ struct LoginView: View {
             }
         }
     }
-
+    
     private func handleLogin() {
         // Validate inputs
         guard !email.isEmpty, !password.isEmpty else {
@@ -89,18 +97,35 @@ struct LoginView: View {
             showingAlert = true
             return
         }
-
+        
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
         fetchRequest.predicate = NSPredicate(
             format: "email == %@ AND password == %@", email, password)
-
+        
         do {
             let users = try viewContext.fetch(fetchRequest)
-            if users.first != nil {
-                // login successful
-                alertMessage = "Login successful"
-                showingAlert = true
-
+            if let _ = users.first {
+                
+                // check if user has any titles
+                Task {
+                    do{
+                        let titles = try await EntertainmentAPI.shared.getUserTitles(email: email)
+                        
+                        if titles.isEmpty{
+                            isShowingTitleTypeSelection = true
+                        }else{
+                            isShowingDashboard = true
+                        }
+                    }catch{
+                        alertMessage = "Error: \(error.localizedDescription)"
+                        showingAlert = true
+                    }
+                }
+                
+                
+                
+                
+                
             } else {
                 alertMessage = "Invalid credentials"
                 showingAlert = true
@@ -120,7 +145,7 @@ struct SignUpView: View {
     @State private var confirmPassword = ""
     @State private var showingAlert = false
     @State private var alertMessage = ""
-
+    
     var body: some View {
         NavigationView {
             Form {
@@ -129,14 +154,14 @@ struct SignUpView: View {
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
                         .keyboardType(.emailAddress)
-
+                    
                     SecureField("Password", text: $password)
                         .textContentType(.newPassword)
-
+                    
                     SecureField("Confirm Password", text: $confirmPassword)
                         .textContentType(.newPassword)
                 }
-
+                
                 Button(action: handleSignUp) {
                     Text("Create Account")
                 }
@@ -157,14 +182,14 @@ struct SignUpView: View {
             }
         }
     }
-
+    
     private func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
         return emailPredicate.evaluate(with: email)
-
+        
     }
-
+    
     private func handleSignUp() {
         // validate inputs
         guard !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
@@ -172,56 +197,56 @@ struct SignUpView: View {
             showingAlert = true
             return
         }
-
+        
         // Validate email format
-
+        
         guard isValidEmail(email) else {
             alertMessage = "Please enter a valid email address"
             showingAlert = true
             return
         }
-
+        
         // check if password match
         guard password == confirmPassword else {
             alertMessage = "Password do not match"
             showingAlert = true
             return
         }
-
+        
         // check password length
         guard password.count >= 6 else {
             alertMessage = "Password must be at least 6 characters"
             showingAlert = true
             return
         }
-
+        
         // check if user already exists
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "email == %@", email)
-
+        
         do {
-
+            
             let existingUsers = try viewContext.fetch(fetchRequest)
             if !existingUsers.isEmpty {
                 alertMessage = "An Account with this email already exists"
                 showingAlert = true
                 return
             }
-
+            
             // create new user
             let newUser = User(context: viewContext)
             newUser.email = email
             newUser.password = password
-
+            
             try viewContext.save()
-
+            
             alertMessage = "Account created successfully"
             showingAlert = true
-
+            
         } catch {
             alertMessage = "Errpr Creating Account : \(error.localizedDescription)"
             showingAlert = true
-
+            
         }
     }
 }
@@ -229,7 +254,7 @@ struct SignUpView: View {
 struct PasswordRecoveryView: View {
     @Environment(\.dismiss) var dismiss
     @State private var email = ""
-
+    
     var body: some View {
         NavigationView {
             Form {
@@ -237,12 +262,12 @@ struct PasswordRecoveryView: View {
                     TextField("Email", text: $email)
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
-
+                    
                     Button(action: handlePasswordRecovery) {
                         Text("Send Reset Link")
                     }
                 }
-
+                
                 Section {
                     Text(
                         "Enter your email address and we'll send you a link to reset your password."
@@ -258,7 +283,7 @@ struct PasswordRecoveryView: View {
                 })
         }
     }
-
+    
     private func handlePasswordRecovery() {
         // TODO: Implement password recovery logic
     }
