@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		274EC3B62CD4ACCE0099A537 /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 274EC3B42CD4ACCE0099A537 /* User+CoreDataClass.swift */; };
+		274EC3B72CD4ACCE0099A537 /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 274EC3B52CD4ACCE0099A537 /* User+CoreDataProperties.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		27AD0BBB2CC42FCB009C63B5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		274EC3B42CD4ACCE0099A537 /* User+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = "<group>"; };
+		274EC3B52CD4ACCE0099A537 /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		27AD0BA52CC42FCA009C63B5 /* Enterty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Enterty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		27AD0BBA2CC42FCB009C63B5 /* EntertyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EntertyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		27AD0BC42CC42FCB009C63B5 /* EntertyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EntertyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +82,8 @@
 		27AD0B9C2CC42FCA009C63B5 = {
 			isa = PBXGroup;
 			children = (
+				274EC3B42CD4ACCE0099A537 /* User+CoreDataClass.swift */,
+				274EC3B52CD4ACCE0099A537 /* User+CoreDataProperties.swift */,
 				27AD0BA72CC42FCA009C63B5 /* Enterty */,
 				27AD0BBD2CC42FCB009C63B5 /* EntertyTests */,
 				27AD0BC72CC42FCB009C63B5 /* EntertyUITests */,
@@ -236,6 +245,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				274EC3B62CD4ACCE0099A537 /* User+CoreDataClass.swift in Sources */,
+				274EC3B72CD4ACCE0099A537 /* User+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
